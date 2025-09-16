@@ -34,7 +34,8 @@ fun AppNavGraph(navController: NavHostController) {
         }
         composable(Screen.OwnerLogin.route) {
             OwnerLoginScreen (
-                onGoBack = { navController.navigate(Screen.Welcome.route) }
+                onGoBack = { navController.navigate(Screen.Welcome.route) },
+                navController = navController
             )
         }
         composable(Screen.OwnerHome.route) {

@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import br.com.apollomusic.feature.owner.login.presentation.OwnerLoginScreenViewModel
 import br.com.apollomusic.ui.components.ApolloButton
 import br.com.apollomusic.ui.components.ApolloInputText
@@ -14,7 +15,8 @@ import br.com.apollomusic.ui.components.ApolloWelcomeTemplate
 @Composable
 fun OwnerLoginScreen(
     onGoBack: () -> Unit,
-    viewModel: OwnerLoginScreenViewModel = hiltViewModel()
+    viewModel: OwnerLoginScreenViewModel = hiltViewModel(),
+    navController: NavHostController
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -36,7 +38,7 @@ fun OwnerLoginScreen(
         )
         ApolloButton(
             text = "Acessar",
-            onClick = { viewModel.doLogin() },
+            onClick = { viewModel.doLogin(navController) },
             icon = Icons.AutoMirrored.Filled.ArrowForward,
             iconPosition = "right"
         )
