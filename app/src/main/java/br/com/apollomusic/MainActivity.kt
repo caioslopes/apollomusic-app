@@ -9,7 +9,9 @@ import androidx.compose.material3.Surface
 import androidx.navigation.compose.rememberNavController
 import br.com.apollomusic.navigation.AppNavGraph
 import br.com.apollomusic.ui.theme.ApolloMusicTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
