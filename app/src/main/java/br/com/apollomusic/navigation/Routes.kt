@@ -1,6 +1,7 @@
 package br.com.apollomusic.navigation
 
 sealed class Screen(val route: String) {
+    data object Splash : Screen("splash")
     data object Welcome : Screen("welcome")
 
     data object UserLogin : Screen("user-login")

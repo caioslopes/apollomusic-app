@@ -11,15 +11,24 @@ import androidx.compose.ui.Modifier
 fun ApolloInputText(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String
+    label: String,
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+    supportingText: String? = null
 ){
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         textStyle = androidx.compose.ui.text.TextStyle.Default,
         singleLine = true,
         shape = RoundedCornerShape(50),
+        isError = isError,
+        supportingText = {
+            if (supportingText != null) {
+                Text(text = supportingText)
+            }
+        }
     )
 }

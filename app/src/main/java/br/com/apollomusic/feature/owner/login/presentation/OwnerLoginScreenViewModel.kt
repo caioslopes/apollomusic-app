@@ -4,11 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import br.com.apollomusic.domain.owner.repository.OwnerRepository
+import br.com.apollomusic.domain.role.UserRole
 import br.com.apollomusic.navigation.Screen
 import br.com.apollomusic.network.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,36 +20,82 @@ class OwnerLoginScreenViewModel @Inject constructor(
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(OwnerLoginUiState(isLoading = true))
+    private val _uiState = MutableStateFlow(OwnerLoginUiState())
+    val uiState = _uiState.asStateFlow()
 
-    val uiState: StateFlow<OwnerLoginUiState> = _uiState
-
-    fun handleForm(email: String = "", password: String = "", establishmentId: String = ""){
-        _uiState.value = _uiState.value.copy(
-            form = OwnerLoginForm(email, password, establishmentId),
-            isLoading = false,
-            errorMessage = null
-        )
+    fun onEmailChange(email: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                form = currentState.form.copy(email = email)
+            )
+        }
     }
 
-    fun doLogin(navController: NavController){
-        viewModelScope.launch {
-            try{
-                _uiState.value = _uiState.value.copy(isLoading = true, form = _uiState.value.form, errorMessage = null)
+    fun onPasswordChange(password: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                form = currentState.form.copy(password = password)
+            )
+        }
+    }
 
-                val email = _uiState.value.form.email
-                val password = _uiState.value.form.password
-                val establishmentId = _uiState.value.form.establishmentId
-                val response = ownerRepository.login(email, password, establishmentId)
+    fun onEstablishmentIdChange(establishmentId: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                form = currentState.form.copy(establishmentId = establishmentId)
+            )
+        }
+    }
+
+    fun doLogin(navController: NavController) {
+        if (!validateForm()) {
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+
+                val form = _uiState.value.form
+                val response = ownerRepository.login(form.email, form.password, form.establishmentId)
 
                 response.accessToken.let { token ->
                     tokenManager.saveToken(token)
-                    navController.navigate(Screen.OwnerHome.route)
+                    tokenManager.saveUserRole(UserRole.OWNER)
+
+                    navController.navigate(Screen.OwnerHome.route){
+                        popUpTo(Screen.OwnerLogin.route) {
+                            inclusive = true
+                        }
+                    }
                 }
-            }catch(e: Exception){
-                _uiState.value = _uiState.value.copy(isLoading = false, form = OwnerLoginForm(), errorMessage = "Falha ao fazer login")
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Falha ao fazer login. Verifique seus dados."
+                    )
+                }
             }
         }
     }
 
+    private fun validateForm(): Boolean {
+        val form = _uiState.value.form
+        val hasError = form.email.isBlank() || form.password.isBlank() || form.establishmentId.isBlank()
+
+        if (hasError) {
+            _uiState.update {
+                it.copy(
+                    form = it.form.copy(
+                        emailError = if (form.email.isBlank()) "Email não pode ser vazio" else null,
+                        passwordError = if (form.password.isBlank()) "Senha não pode ser vazio." else null,
+                        establishmentIdError = if (form.establishmentId.isBlank()) "Código não pode ser vazio" else null
+                    )
+                )
+            }
+        }
+
+        return !hasError
+    }
 }

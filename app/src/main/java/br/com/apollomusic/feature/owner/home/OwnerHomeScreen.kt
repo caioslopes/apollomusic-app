@@ -5,14 +5,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import br.com.apollomusic.feature.owner.home.presentation.OwnerHomeScreenViewModel
+import br.com.apollomusic.ui.components.ApolloButton
 import br.com.apollomusic.ui.components.ApolloCommonHeader
 import br.com.apollomusic.ui.components.ApolloUserHeader
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OwnerHomeScreen(
-    onNavigateToDetail: () -> Unit
+    onNavigateToDetail: () -> Unit,
+    navController: NavHostController,
+    viewModel: OwnerHomeScreenViewModel = hiltViewModel(),
 ) {
     Scaffold(
         topBar = {
@@ -28,12 +34,10 @@ fun OwnerHomeScreen(
                 .padding(padding),
             contentAlignment = Alignment.Center
         ) {
-            Button(
-                onClick = onNavigateToDetail,
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text("Ir para login")
-            }
+            ApolloButton(
+                text = "Sair",
+                onClick = { viewModel.onLogout(navController) }
+            )
         }
     }
 }
