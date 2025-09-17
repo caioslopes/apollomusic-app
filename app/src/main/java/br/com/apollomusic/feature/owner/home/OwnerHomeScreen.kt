@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import br.com.apollomusic.ui.components.ApolloCommonHeader
+import br.com.apollomusic.ui.components.ApolloUserHeader
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -13,7 +15,12 @@ fun OwnerHomeScreen(
     onNavigateToDetail: () -> Unit
 ) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Página inicial Owner") }) }
+        topBar = {
+            Column {
+                ApolloCommonHeader(Modifier)
+                ApolloUserHeader(Modifier, "João Silva")
+            }
+        }
     ) { padding ->
         Box(
             modifier = Modifier
