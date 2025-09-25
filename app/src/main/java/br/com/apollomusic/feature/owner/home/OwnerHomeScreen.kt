@@ -22,9 +22,13 @@ fun OwnerHomeScreen(
 ) {
     Scaffold(
         topBar = {
-            Column {
+            Column (modifier = Modifier.statusBarsPadding()) {
                 ApolloCommonHeader(Modifier)
-                ApolloUserHeader(Modifier, "João Silva")
+                ApolloUserHeader(
+                    Modifier,
+                    "João Silva",
+                    onClickExit = { viewModel.onLogout(navController) }
+                )
             }
         }
     ) { padding ->
