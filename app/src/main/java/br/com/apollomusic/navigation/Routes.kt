@@ -8,5 +8,15 @@ sealed class Screen(val route: String) {
     data object UserHome : Screen("user-home")
 
     data object OwnerLogin : Screen("owner-login")
-    data object OwnerHome : Screen("owner-home")
+    data object OwnerHome : Screen("owner-home?spotifyCode={spotifyCode}") {
+        const val ARG_SPOTIFY_CODE = "spotifyCode"
+
+        fun createRoute(spotifyCode: String? = null): String {
+            return if (!spotifyCode.isNullOrBlank()) {
+                "owner-home?spotifyCode=$spotifyCode"
+            } else {
+                "owner-home"
+            }
+        }
+    }
 }

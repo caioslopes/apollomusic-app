@@ -63,7 +63,7 @@ class OwnerLoginScreenViewModel @Inject constructor(
                     tokenManager.saveToken(token)
                     tokenManager.saveUserRole(UserRole.OWNER)
 
-                    navController.navigate(Screen.OwnerHome.route){
+                    navController.navigate(Screen.OwnerHome.route) {
                         popUpTo(Screen.OwnerLogin.route) {
                             inclusive = true
                         }
