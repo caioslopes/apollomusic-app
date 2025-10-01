@@ -4,9 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import br.com.apollomusic.feature.owner.home.OwnerHomeScreen
 import br.com.apollomusic.feature.owner.login.OwnerLoginScreen
-import br.com.apollomusic.feature.user.home.UserHomeScreen
+import br.com.apollomusic.feature.splash.SplashScreen
 import br.com.apollomusic.feature.user.login.UserLoginScreen
 import br.com.apollomusic.feature.welcome.WelcomeScreen
 
@@ -14,12 +13,15 @@ import br.com.apollomusic.feature.welcome.WelcomeScreen
 fun AppNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Welcome.route
+        startDestination = Screen.Splash.route
     ) {
+        composable(Screen.Splash.route) {
+            SplashScreen(navController = navController)
+        }
         composable(Screen.Welcome.route) {
             WelcomeScreen(
                 onNavigateToOwnerLogin = { navController.navigate(Screen.OwnerLogin.route) },
-                onNavigateToUserLogin = { navController.navigate(Screen.OwnerHome.route) }
+                onNavigateToUserLogin = { navController.navigate(Screen.UserLogin.route) }
             )
         }
         composable(Screen.UserLogin.route) {
@@ -27,20 +29,14 @@ fun AppNavGraph(navController: NavHostController) {
                 onNavigateToDetail = { navController.navigate(Screen.Welcome.route) }
             )
         }
-        composable(Screen.UserHome.route) {
-            UserHomeScreen (
-                onNavigateToDetail = { navController.navigate(Screen.Welcome.route) }
-            )
-        }
         composable(Screen.OwnerLogin.route) {
             OwnerLoginScreen (
-                onGoBack = { navController.navigate(Screen.Welcome.route) }
+                onGoBack = { navController.navigate(Screen.Welcome.route) },
+                navController = navController
             )
         }
-        composable(Screen.OwnerHome.route) {
-            OwnerHomeScreen(
-                onNavigateToDetail = { navController.navigate(Screen.Welcome.route) }
-            )
-        }
+
+        ownerNavGraph(navController)
+        userNavGraph(navController)
     }
 }
