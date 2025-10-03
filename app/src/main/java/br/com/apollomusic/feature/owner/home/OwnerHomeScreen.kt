@@ -13,11 +13,8 @@ import br.com.apollomusic.feature.owner.home.presentation.OwnerHomeScreenViewMod
 import br.com.apollomusic.feature.owner.home.ui.components.EstablishmentControl
 import br.com.apollomusic.ui.components.ApolloCommonHeader
 import br.com.apollomusic.ui.components.ApolloUserHeader
-import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
+import br.com.apollomusic.feature.owner.home.ui.components.EstablishmentDevices
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,6 +26,10 @@ fun OwnerHomeScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     viewModel.getOwner()
+    viewModel.getEstablishment()
+    viewModel.getDevices()
+    var selectedDevice by remember { mutableStateOf<String?>(null) }
+
 
     LaunchedEffect(initialSpotifyCode) {
         if (!initialSpotifyCode.isNullOrBlank() && initialSpotifyCode != "{spotifyCode}") {
@@ -61,24 +62,17 @@ fun OwnerHomeScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 EstablishmentControl(
-                    name = "Zinho",
-                    statusText = "Ligado",
-                    configured = false,
-                    enabled = false
+                    name = uiState.establishment?.name ?: "",
+                    statusText = if (uiState.establishment?.isOff == true) "Desligado" else "Tocando agora",
+                    configured = uiState.establishment?.playlist != null,
+                    enabled = uiState.establishment?.isOff ?: false
                 )
 
-                EstablishmentControl(
-                    name = "Zinho",
-                    statusText = "Desligado",
-                    configured = true,
-                    enabled = false
-                )
 
-                EstablishmentControl(
-                    name = "Zinho",
-                    statusText = "Tocando agora",
-                    configured = true,
-                    enabled = true
+                EstablishmentDevices(
+                    devices = uiState?.devices ?: mutableListOf(),
+                    selectedDeviceId = selectedDevice,
+                    onSelectDevice = { selectedDevice = it }
                 )
             }
 

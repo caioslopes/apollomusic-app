@@ -3,6 +3,7 @@ package br.com.apollomusic.feature.owner.home.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import br.com.apollomusic.domain.establishment.repository.EstablishmentRepository
 import br.com.apollomusic.domain.owner.repository.OwnerRepository
 import br.com.apollomusic.navigation.Screen
 import br.com.apollomusic.network.TokenManager
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class OwnerHomeScreenViewModel @Inject constructor(
     private val tokenManager: TokenManager,
-    private val ownerRepository: OwnerRepository
+    private val ownerRepository: OwnerRepository,
+    private val establishmentRepository: EstablishmentRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OwnerHomeUiState())
@@ -77,6 +79,44 @@ class OwnerHomeScreenViewModel @Inject constructor(
                     it.copy(
                         isLoading = false,
                         errorMessage = "Não foi consultar usuário."
+                    )
+                }
+            }
+        }
+    }
+
+    fun getEstablishment() {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoading = true, errorMessage = null, successMessage = null) }
+
+                val response = establishmentRepository.getEstablishment()
+
+                _uiState.update { it.copy(establishment = response) }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Não foi consultar estabelecimento."
+                    )
+                }
+            }
+        }
+    }
+
+    fun getDevices() {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoading = true, errorMessage = null, successMessage = null) }
+
+                val response = establishmentRepository.getDevice()
+
+                _uiState.update { it.copy(devices = response.devices) }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Não foi consultar dispositivos."
                     )
                 }
             }
