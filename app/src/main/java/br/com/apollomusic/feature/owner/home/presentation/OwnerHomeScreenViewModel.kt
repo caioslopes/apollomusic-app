@@ -78,7 +78,7 @@ class OwnerHomeScreenViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "Não foi consultar usuário."
+                        errorMessage = "Não foi possível consultar usuário."
                     )
                 }
             }
@@ -97,7 +97,7 @@ class OwnerHomeScreenViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "Não foi consultar estabelecimento."
+                        errorMessage = "Não foi possível consultar estabelecimento."
                     )
                 }
             }
@@ -116,12 +116,65 @@ class OwnerHomeScreenViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "Não foi consultar dispositivos."
+                        errorMessage = "Não foi possível consultar dispositivos."
                     )
                 }
             }
         }
     }
+
+    fun createPlaylist() {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoading = true, errorMessage = null, successMessage = null) }
+
+                establishmentRepository.createPlaylist()
+
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Não foi possível criar playlist."
+                    )
+                }
+            }
+        }
+    }
+
+    fun getPlaylist() {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoading = true, errorMessage = null, successMessage = null) }
+                val response = establishmentRepository.getPlaylist()
+
+                _uiState.update { it.copy(playlist = response) }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Não foi possível criar playlist."
+                    )
+                }
+            }
+        }
+    }
+
+    fun createAndFetchPlaylist() {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoading = true) }
+
+                establishmentRepository.createPlaylist()
+                val playlist = establishmentRepository.getPlaylist()
+
+                _uiState.update { it.copy(isLoading = false, playlist = playlist) }
+
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, errorMessage = "Erro ao gerar playlist") }
+            }
+        }
+    }
+
 
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }

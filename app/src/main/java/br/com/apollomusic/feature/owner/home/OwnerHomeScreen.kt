@@ -1,6 +1,10 @@
 package br.com.apollomusic.feature.owner.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,7 +18,11 @@ import br.com.apollomusic.feature.owner.home.ui.components.EstablishmentControl
 import br.com.apollomusic.ui.components.ApolloCommonHeader
 import br.com.apollomusic.ui.components.ApolloUserHeader
 import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
 import br.com.apollomusic.feature.owner.home.ui.components.EstablishmentDevices
+import br.com.apollomusic.feature.owner.home.ui.components.PlaylistControl
+import br.com.apollomusic.ui.components.ApolloButton
+import br.com.apollomusic.ui.theme.Grey90
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,6 +36,8 @@ fun OwnerHomeScreen(
     viewModel.getOwner()
     viewModel.getEstablishment()
     viewModel.getDevices()
+    viewModel.getPlaylist()
+
     var selectedDevice by remember { mutableStateOf<String?>(null) }
 
 
@@ -70,10 +80,36 @@ fun OwnerHomeScreen(
 
 
                 EstablishmentDevices(
-                    devices = uiState?.devices ?: mutableListOf(),
+                    devices = uiState.devices ?: mutableListOf(),
                     selectedDeviceId = selectedDevice,
                     onSelectDevice = { selectedDevice = it }
                 )
+
+
+               if(uiState.playlist == null) {
+                   Column (
+                       modifier = Modifier
+                           .fillMaxWidth()
+                           .clip(RoundedCornerShape(12.dp))
+                           .background(Grey90)
+                           .padding(horizontal = 16.dp, vertical = 12.dp),
+                       verticalArrangement = Arrangement.spacedBy(16.dp)
+                   ) {
+                       ApolloButton(
+                           text = "Gerar Playlist",
+                           onClick = { viewModel.createAndFetchPlaylist() },
+                           icon = Icons.Default.Add,
+                           iconPosition = "right"
+                       )
+                   }
+               } else {
+                   PlaylistControl(
+                       name = uiState.playlist?.name ?: "",
+                       description = uiState.playlist?.description ?: "Lorem ipsum dolor sit amet.",
+                       onConfigClick = { println("Clicou em configurar!") }
+                   )
+
+               }
             }
 
         }
