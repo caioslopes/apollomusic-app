@@ -2,6 +2,7 @@ package br.com.apollomusic.network
 
 import br.com.apollomusic.data.api.EstablishmentApiService
 import br.com.apollomusic.data.api.OwnerApiService
+import br.com.apollomusic.data.api.UserApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,7 +17,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "http://10.242.21.192:8081/"
+    private const val BASE_URL = "https://colouristic-melanie-roguish.ngrok-free.dev/"
 
     @Provides
     @Singleton
@@ -55,5 +56,11 @@ object NetworkModule {
     @Singleton
     fun provideEstablishmentApiService(retrofit: Retrofit): EstablishmentApiService {
         return retrofit.create(EstablishmentApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserApiService(retrofit: Retrofit): UserApiService {
+        return retrofit.create(UserApiService::class.java)
     }
 }

@@ -13,7 +13,7 @@ fun NavGraphBuilder.userNavGraph(navController: NavHostController) {
     ) {
         composable(Screen.UserHome.route) {
             UserHomeScreen (
-                onNavigateToDetail = { navController.navigate(Screen.Welcome.route) }
+                navController = navController
             )
         }
     }

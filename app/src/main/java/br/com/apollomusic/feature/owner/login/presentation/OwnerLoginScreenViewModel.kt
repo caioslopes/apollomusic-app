@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import br.com.apollomusic.domain.owner.repository.OwnerRepository
 import br.com.apollomusic.domain.role.UserRole
+import br.com.apollomusic.navigation.Graph
 import br.com.apollomusic.navigation.Screen
 import br.com.apollomusic.network.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,8 +64,8 @@ class OwnerLoginScreenViewModel @Inject constructor(
                     tokenManager.saveToken(token)
                     tokenManager.saveUserRole(UserRole.OWNER)
 
-                    navController.navigate(Screen.OwnerHome.route) {
-                        popUpTo(Screen.OwnerLogin.route) {
+                    navController.navigate(Graph.Owner.route) {
+                        popUpTo(Screen.Welcome.route) {
                             inclusive = true
                         }
                     }

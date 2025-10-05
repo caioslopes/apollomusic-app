@@ -13,7 +13,8 @@ import br.com.apollomusic.feature.welcome.WelcomeScreen
 fun AppNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Splash.route
+        startDestination = Screen.Splash.route,
+        route = Graph.Root.route
     ) {
         composable(Screen.Splash.route) {
             SplashScreen(navController = navController)
@@ -26,7 +27,8 @@ fun AppNavGraph(navController: NavHostController) {
         }
         composable(Screen.UserLogin.route) {
             UserLoginScreen (
-                onNavigateToDetail = { navController.navigate(Screen.Welcome.route) }
+                onGoBack = { navController.navigate(Screen.Welcome.route) },
+                navController = navController
             )
         }
         composable(Screen.OwnerLogin.route) {

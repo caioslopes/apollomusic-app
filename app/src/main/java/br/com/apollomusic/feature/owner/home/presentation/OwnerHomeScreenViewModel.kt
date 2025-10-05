@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import br.com.apollomusic.domain.establishment.repository.EstablishmentRepository
 import br.com.apollomusic.domain.owner.repository.OwnerRepository
+import br.com.apollomusic.navigation.Graph
 import br.com.apollomusic.navigation.Screen
 import br.com.apollomusic.network.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +29,9 @@ class OwnerHomeScreenViewModel @Inject constructor(
         viewModelScope.launch {
             tokenManager.clearSession()
             navController.navigate(Screen.Welcome.route) {
-                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                popUpTo(Graph.Owner.route) {
+                    inclusive = true
+                }
             }
         }
     }

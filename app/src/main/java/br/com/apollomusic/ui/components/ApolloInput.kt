@@ -14,7 +14,8 @@ fun ApolloInputText(
     label: String,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
-    supportingText: String? = null
+    supportingText: String? = null,
+    trailingIcon: @Composable (() -> Unit)? = null
 ){
     OutlinedTextField(
         value = value,
@@ -29,6 +30,7 @@ fun ApolloInputText(
             if (supportingText != null) {
                 Text(text = supportingText)
             }
-        }
+        },
+        trailingIcon = trailingIcon,
     )
 }
