@@ -10,9 +10,9 @@ class UserRepository @Inject constructor(
     private val api: UserApiService
 ) {
 
-    suspend fun login(username: String, artists: List<String>, establishmentId: Long): LoginResponse {
+    suspend fun login(username: String, genres: List<String>, establishmentId: Long): LoginResponse {
         try{
-            val loginRequest = LoginRequest(username, artists, establishmentId)
+            val loginRequest = LoginRequest(username, genres, establishmentId)
             val response = api.login(loginRequest)
             return response
         }catch(e: Exception){

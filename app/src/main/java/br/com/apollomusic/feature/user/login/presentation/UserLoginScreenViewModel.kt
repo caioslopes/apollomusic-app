@@ -104,11 +104,12 @@ class UserLoginScreenViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isSearchingArtists = false,
-                        artistSearchResult = response.artists
+                        isLoading = false,
+                        artistSearchResult = response
                     )
                 }
             }catch (e: Exception){
-                _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
+                _uiState.update { it.copy(isLoading = false, isSearchingArtists = false, errorMessage = e.message) }
             }
 
         }
@@ -137,7 +138,7 @@ class UserLoginScreenViewModel @Inject constructor(
                  val response = userRepository.login(
                      username = _uiState.value.username,
                      establishmentId = _uiState.value.establishmentId.toLong(),
-                     artists = _uiState.value.selectedArtists.map { it.id }
+                     genres = _uiState.value.selectedArtists.map { it.id }
                  )
 
                 tokenManager.saveToken(response.accessToken)

@@ -1,5 +1,6 @@
 package br.com.apollomusic.data.api
 
+import br.com.apollomusic.domain.establishment.dto.Artist
 import br.com.apollomusic.domain.establishment.dto.ArtistsResponse
 import br.com.apollomusic.domain.establishment.dto.EstablishmentAvailableArtists
 import br.com.apollomusic.domain.establishment.dto.EstablishmentForUsersResponse
@@ -33,7 +34,7 @@ interface EstablishmentApiService {
     suspend fun searchForArtists(@Query("query") query: String): ArtistsResponse
 
     @GET("establishment/playlist/for-user/search-artists")
-    suspend fun userSearchForArtists(@Query("establishmentId") establishmentId: Long, @Query("query") query: String): ArtistsResponse
+    suspend fun userSearchForArtists(@Query("establishmentId") establishmentId: Long, @Query("query") query: String): List<Artist>
 
     @GET("establishment/playlist/genres/{id}")
     suspend fun getEstablishmentAvailableArtists(@Path("id") id: String): EstablishmentAvailableArtists

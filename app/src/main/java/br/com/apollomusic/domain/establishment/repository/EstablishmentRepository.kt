@@ -1,6 +1,7 @@
 package br.com.apollomusic.domain.establishment.repository
 
 import br.com.apollomusic.data.api.EstablishmentApiService
+import br.com.apollomusic.domain.establishment.dto.Artist
 import br.com.apollomusic.domain.establishment.dto.ArtistsResponse
 import br.com.apollomusic.domain.establishment.dto.EstablishmentAvailableArtists
 import br.com.apollomusic.domain.establishment.dto.EstablishmentForUsersResponse
@@ -57,7 +58,7 @@ class EstablishmentRepository @Inject constructor(
         }
     }
 
-    suspend fun userSearchForArtists(establishmentId: Long, query: String): ArtistsResponse {
+    suspend fun userSearchForArtists(establishmentId: Long, query: String): List<Artist> {
         try{
             val response = api.userSearchForArtists(establishmentId, query)
             return response
