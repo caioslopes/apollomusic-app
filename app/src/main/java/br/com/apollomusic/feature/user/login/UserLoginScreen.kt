@@ -1,21 +1,23 @@
 package br.com.apollomusic.feature.user.login
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import br.com.apollomusic.feature.user.login.presentation.LoginStep
 import br.com.apollomusic.feature.user.login.presentation.UserLoginScreenViewModel
-import br.com.apollomusic.feature.user.login.ui.components.ArtistSelectionDrawerContent
 import br.com.apollomusic.feature.user.login.ui.components.Step1_FindEstablishment
 import br.com.apollomusic.feature.user.login.ui.components.Step2_EnterUsername
 import br.com.apollomusic.feature.user.login.ui.components.Step3_SelectArtists
+import br.com.apollomusic.ui.components.ApolloArtistSearch
 import br.com.apollomusic.ui.components.ApolloWelcomeTemplate
+import br.com.apollomusic.ui.components.SelectionMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,14 +28,17 @@ fun UserLoginScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
 
     if (state.isArtistDrawerOpen) {
         ModalBottomSheet(
             onDismissRequest = { viewModel.closeArtistDrawer() },
             sheetState = sheetState
         ) {
-            ArtistSelectionDrawerContent(
+            ApolloArtistSearch(
+                header = {
+                    Text("Escolha seu artista favorito", style = MaterialTheme.typography.titleLarge)
+                },
+                selectionMode = SelectionMode.MULTI,
                 searchQuery = state.artistSearchQuery,
                 onQueryChange = viewModel::onArtistSearchQueryChange,
                 onSearchClick = viewModel::onSearchArtists,
