@@ -77,6 +77,9 @@ dependencies {
     // Image
     implementation(libs.coil.compose)
 
+    // JWT
+    implementation(libs.java.jwt)
+
     // Testes
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
