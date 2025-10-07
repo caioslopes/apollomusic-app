@@ -5,7 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import br.com.apollomusic.domain.establishment.dto.Artist
+import br.com.apollomusic.domain.establishment.dto.artist.Artist
 import br.com.apollomusic.ui.components.ApolloButton
 
 @Composable

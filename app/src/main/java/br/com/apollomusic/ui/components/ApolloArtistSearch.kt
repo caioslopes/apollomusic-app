@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import br.com.apollomusic.domain.establishment.dto.Artist
+import br.com.apollomusic.domain.establishment.dto.artist.Artist
 import coil.compose.AsyncImage
 
 enum class SelectionMode {

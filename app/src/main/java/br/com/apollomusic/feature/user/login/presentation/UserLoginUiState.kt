@@ -1,6 +1,6 @@
 package br.com.apollomusic.feature.user.login.presentation
 
-import br.com.apollomusic.domain.establishment.dto.Artist
+import br.com.apollomusic.domain.establishment.dto.artist.Artist
 
 enum class LoginStep {
     FIND_ESTABLISHMENT,

@@ -1,4 +1,4 @@
-package br.com.apollomusic.domain.establishment.dto
+package br.com.apollomusic.domain.establishment.dto.artist
 
 data class Artist(
     val id: String,

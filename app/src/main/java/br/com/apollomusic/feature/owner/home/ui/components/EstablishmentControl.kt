@@ -2,6 +2,7 @@ package br.com.apollomusic.feature.owner.home.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,13 +29,14 @@ fun EstablishmentControl(
     name: String,
     statusText: String,
     configured: Boolean,
-    enabled: Boolean
+    enabled: Boolean,
+    onConfigClick: (() -> Unit)? = null
 ) {
     val rowBackground = if (configured && enabled) Rose else Grey90
     val textColor = if (configured && enabled) Color.White else Rose
     val iconColor = if (configured && enabled) Color.White else Rose
     val chipBackground = if (configured) Color.White else Grey80
-    val chipText = if (configured) statusText else "Não configurado"
+    val chipText = if (configured) statusText else "Não configurado"
     val chipTextColor = if (configured) Rose else Rose
 
     Row(
@@ -88,8 +90,11 @@ fun EstablishmentControl(
         Icon(
             imageVector = Icons.Default.Settings,
             contentDescription = "Estabelecimento",
-            modifier = Modifier.size(32.dp),
+            modifier = Modifier
+                .size(32.dp)
+                .clickable() { onConfigClick?.invoke() },
             tint = iconColor
         )
     }
 }
+

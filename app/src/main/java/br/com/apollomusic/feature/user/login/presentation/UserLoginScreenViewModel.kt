@@ -3,7 +3,7 @@ package br.com.apollomusic.feature.user.login.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import br.com.apollomusic.domain.establishment.dto.Artist
+import br.com.apollomusic.domain.establishment.dto.artist.Artist
 import br.com.apollomusic.domain.establishment.repository.EstablishmentRepository
 import br.com.apollomusic.domain.role.UserRole
 import br.com.apollomusic.domain.user.repository.UserRepository

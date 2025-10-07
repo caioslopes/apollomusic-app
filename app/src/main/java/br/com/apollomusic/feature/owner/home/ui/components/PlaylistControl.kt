@@ -1,9 +1,9 @@
 package br.com.apollomusic.feature.owner.home.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,17 +20,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import br.com.apollomusic.ui.theme.Grey80
+import br.com.apollomusic.R
 
 @Composable
 fun PlaylistControl(
     modifier: Modifier = Modifier,
     name: String,
+    configured: Boolean? = false,
     description: String,
-    onConfigClick: () -> Unit
+    onConfigClick: (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier
@@ -39,12 +42,14 @@ fun PlaylistControl(
             .background(Color(0xFFF1F1F1))
             .padding(16.dp)
     ) {
-        Box(
+        Image(
+            painter = painterResource(id = R.drawable.default_playlist),
+            contentDescription = "Capa padrão da playlist",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(Grey80)
+                .clip(RoundedCornerShape(12.dp)),
+            contentScale = ContentScale.Crop
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -61,27 +66,29 @@ fun PlaylistControl(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row (
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
+        if (onConfigClick != null && configured == false) {
             Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.White)
-                    .clickable() { onConfigClick() }
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
-                Text(
-                    text = "Configurar",
-                    fontWeight = FontWeight.Medium
-                )
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Configurar"
-                )
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.White)
+                        .clickable { onConfigClick() }
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Configurar",
+                        fontWeight = FontWeight.Medium
+                    )
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Configurar"
+                    )
+                }
             }
         }
     }

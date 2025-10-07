@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import br.com.apollomusic.feature.owner.config.OwnerConfigScreen
 import br.com.apollomusic.feature.owner.home.OwnerHomeScreen
 
 fun NavGraphBuilder.ownerNavGraph(navController: NavHostController) {
@@ -26,6 +27,12 @@ fun NavGraphBuilder.ownerNavGraph(navController: NavHostController) {
                 navController = navController,
                 initialSpotifyCode = code
             )
+        }
+
+        composable(
+            route = Screen.OwnerConfig.route
+        ) {
+            OwnerConfigScreen(navController)
         }
     }
 }
