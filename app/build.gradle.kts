@@ -80,6 +80,9 @@ dependencies {
     // JWT
     implementation(libs.java.jwt)
 
+    // Splash
+    implementation(libs.androidx.core.splashscreen)
+
     // Testes
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -9,6 +9,8 @@ import br.com.apollomusic.navigation.Graph
 import br.com.apollomusic.navigation.Screen
 import br.com.apollomusic.network.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,7 +21,10 @@ class SplashViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _startDestination = mutableStateOf("")
+    private val _isLoading = MutableStateFlow(true)
+
     val startDestination: State<String> = _startDestination
+    val isLoading = _isLoading.asStateFlow()
 
     init {
         checkUserSession()
@@ -39,6 +44,8 @@ class SplashViewModel @Inject constructor(
                     null -> Screen.Welcome.route
                 }
             }
+
+            _isLoading.value = false
         }
     }
 }
