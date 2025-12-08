@@ -47,7 +47,7 @@ class UserHomeScreenViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        establishmentInfo = establishmentData
+                        establishmentInfo = establishmentData.data
                     )
                 }
 

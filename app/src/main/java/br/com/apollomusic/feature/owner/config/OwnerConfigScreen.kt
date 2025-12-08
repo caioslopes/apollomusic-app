@@ -18,11 +18,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import br.com.apollomusic.feature.owner.config.presentation.OwnerConfigScreenViewModel
 import br.com.apollomusic.feature.owner.home.ui.components.PlaylistControl
+import br.com.apollomusic.ui.UiEvent
 import br.com.apollomusic.ui.components.ApolloArtistSearch
 import br.com.apollomusic.ui.components.ApolloButton
 import br.com.apollomusic.ui.components.ApolloCommonHeader
@@ -50,6 +56,25 @@ fun OwnerConfigScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val sheetState = rememberModalBottomSheetState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(
+                        message = event.message,
+                        duration = SnackbarDuration.Short,
+                        withDismissAction = true
+                    )
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.getOwner()
+    }
 
     if (state.isArtistDrawerOpen) {
         ModalBottomSheet(
@@ -77,6 +102,7 @@ fun OwnerConfigScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             Column(modifier = Modifier.statusBarsPadding()) {
                 ApolloCommonHeader(Modifier)
@@ -157,8 +183,6 @@ private fun ArtistTag(name: String) {
             .background(Grey80)
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
-
-
         Text(
             text = name,
             color = Rose,

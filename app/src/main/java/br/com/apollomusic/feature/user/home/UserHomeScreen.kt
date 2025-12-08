@@ -28,10 +28,12 @@ fun UserHomeScreen(
             Column(modifier = Modifier.statusBarsPadding()) {
                 ApolloCommonHeader(Modifier)
                 ApolloUserHeader(
-                    Modifier,
-                    uiState.user?.username ?: "",
+                    modifier = Modifier,
+                    userName = uiState.user?.username ?: "",
                     onClickExit = { viewModel.onLogout(navController) },
-                    false
+                    hasThirdPartyAccess = false,
+                    isLoading = uiState.isLoading,
+                    showSpotifySection = false
                 )
             }
         }

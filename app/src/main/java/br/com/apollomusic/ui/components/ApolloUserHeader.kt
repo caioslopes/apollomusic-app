@@ -3,6 +3,8 @@ package br.com.apollomusic.ui.components
 import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
@@ -20,7 +22,14 @@ import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ApolloUserHeader(modifier: Modifier, userName: String, onClickExit: () -> Unit, hasThirdPartyAccess: Boolean = false ) {
+fun ApolloUserHeader(
+    modifier: Modifier, 
+    userName: String, 
+    onClickExit: () -> Unit, 
+    hasThirdPartyAccess: Boolean = false,
+    isLoading: Boolean = false,
+    showSpotifySection: Boolean = true
+) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
@@ -66,37 +75,39 @@ fun ApolloUserHeader(modifier: Modifier, userName: String, onClickExit: () -> Un
 
                 }
 
-                Column {
-                    Text(
-                        "Spotify",
-                        fontWeight = FontWeight.Bold
-                    )
-                    Row(
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 12.dp)
-                            .clickable {
-                             if(!hasThirdPartyAccess) {
-                                 val intent = Intent(Intent.ACTION_VIEW,
-                                     "https://accounts.spotify.com/pt-BR/authorize?response_type=code&scope=user-read-playback-state%20user-modify-playback-state%20user-read-currently-playing%20playlist-read-private%20playlist-read-collaborative%20playlist-modify-private%20playlist-modify-public&client_id=d5efeedcdd7f41f8a323384fcd81f2be&redirect_uri=apollomusic://callback".toUri())
-                                 context.startActivity(intent)
-                             }
-                            },
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                       if(!hasThirdPartyAccess) {
-                           Text("Vincular uma conta")
-                           Icon(
-                               imageVector = Icons.Default.Settings,
-                               contentDescription = "Editar usuário",
-                               modifier = Modifier.size(24.dp)
-                           )
-                       } else {
-                           Text("Conta vinculada!")
-                       }
-                    }
+                if (showSpotifySection) {
+                    Column {
+                        Text(
+                            "Spotify",
+                            fontWeight = FontWeight.Bold
+                        )
+                        Row(
+                            modifier = modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp)
+                                .clickable {
+                                    if(!hasThirdPartyAccess) {
+                                        val intent = Intent(Intent.ACTION_VIEW,
+                                            "https://accounts.spotify.com/pt-BR/authorize?response_type=code&scope=user-read-playback-state%20user-modify-playback-state%20user-read-currently-playing%20playlist-read-private%20playlist-read-collaborative%20playlist-modify-private%20playlist-modify-public&client_id=d5efeedcdd7f41f8a323384fcd81f2be&redirect_uri=apollomusic://callback".toUri())
+                                        context.startActivity(intent)
+                                    }
+                                },
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if(!hasThirdPartyAccess) {
+                                Text("Vincular uma conta")
+                                Icon(
+                                    imageVector = Icons.Default.Settings,
+                                    contentDescription = "Editar usuário",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            } else {
+                                Text("Conta vinculada!")
+                            }
+                        }
 
+                    }
                 }
 
                 Row(
@@ -126,19 +137,30 @@ fun ApolloUserHeader(modifier: Modifier, userName: String, onClickExit: () -> Un
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp)
-            .clickable {
+            .then(if (!isLoading) Modifier.clickable {
                 scope.launch {
                     showBottomSheet = true
                 }
-            },
+            } else Modifier),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = userName, fontWeight = FontWeight.Bold)
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = "usuário",
-            modifier = Modifier.size(24.dp)
-        )
+        if (isLoading) {
+            Skeleton(
+                modifier = Modifier.width(150.dp).height(24.dp),
+                shape = RoundedCornerShape(4.dp)
+            )
+            Skeleton(
+                modifier = Modifier.size(24.dp),
+                shape = CircleShape
+            )
+        } else {
+            Text(text = userName, fontWeight = FontWeight.Bold)
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "usuário",
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }

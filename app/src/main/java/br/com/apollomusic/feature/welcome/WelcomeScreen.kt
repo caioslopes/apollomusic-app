@@ -12,7 +12,7 @@ fun WelcomeScreen(
     onNavigateToOwnerLogin : () -> Unit,
     onNavigateToUserLogin : () -> Unit
 ) {
-    ApolloWelcomeTemplate {
+    ApolloWelcomeTemplate() {
         ApolloButton(
             text = "Usuário",
             onClick = onNavigateToUserLogin,

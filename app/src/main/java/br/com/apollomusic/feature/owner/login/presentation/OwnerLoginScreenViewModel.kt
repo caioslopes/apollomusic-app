@@ -7,10 +7,14 @@ import br.com.apollomusic.domain.owner.repository.OwnerRepository
 import br.com.apollomusic.domain.role.UserRole
 import br.com.apollomusic.navigation.Graph
 import br.com.apollomusic.navigation.Screen
+import br.com.apollomusic.network.NetworkResult
 import br.com.apollomusic.network.TokenManager
+import br.com.apollomusic.ui.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,10 +28,13 @@ class OwnerLoginScreenViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(OwnerLoginUiState())
     val uiState = _uiState.asStateFlow()
 
+    private val _uiEvent = Channel<UiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
     fun onEmailChange(email: String) {
         _uiState.update { currentState ->
             currentState.copy(
-                form = currentState.form.copy(email = email)
+                form = currentState.form.copy(email = email, emailError = null)
             )
         }
     }
@@ -35,7 +42,7 @@ class OwnerLoginScreenViewModel @Inject constructor(
     fun onPasswordChange(password: String) {
         _uiState.update { currentState ->
             currentState.copy(
-                form = currentState.form.copy(password = password)
+                form = currentState.form.copy(password = password, passwordError = null)
             )
         }
     }
@@ -43,40 +50,40 @@ class OwnerLoginScreenViewModel @Inject constructor(
     fun onEstablishmentIdChange(establishmentId: String) {
         _uiState.update { currentState ->
             currentState.copy(
-                form = currentState.form.copy(establishmentId = establishmentId)
+                form = currentState.form.copy(establishmentId = establishmentId, establishmentIdError = null)
             )
         }
     }
 
     fun doLogin(navController: NavController) {
-        if (!validateForm()) {
-            return
-        }
+        if (!validateForm()) return
 
         viewModelScope.launch {
-            try {
-                _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-                val form = _uiState.value.form
-                val response = ownerRepository.login(form.email, form.password, form.establishmentId)
+            val form = _uiState.value.form
 
-                response.accessToken.let { token ->
-                    tokenManager.saveToken(token)
-                    tokenManager.saveUserRole(UserRole.OWNER)
+            when (val result = ownerRepository.login(form.email, form.password, form.establishmentId)) {
+                is NetworkResult.Success -> {
+                    result.data?.accessToken?.let { token ->
+                        tokenManager.saveToken(token)
+                        tokenManager.saveUserRole(UserRole.OWNER)
 
-                    navController.navigate(Graph.Owner.route) {
-                        popUpTo(Screen.Welcome.route) {
-                            inclusive = true
+                        _uiState.update { it.copy(isLoading = false) }
+
+                        navController.navigate(Graph.Owner.route) {
+                            popUpTo(Screen.Welcome.route) { inclusive = true }
                         }
+                    } ?: run {
+                        _uiState.update { it.copy(isLoading = false) }
+                        sendError("Erro: Token não recebido.")
                     }
                 }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "Falha ao fazer login. Verifique seus dados."
-                    )
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(isLoading = false) }
+                    sendError(result.message)
                 }
+                is NetworkResult.Loading -> {}
             }
         }
     }
@@ -98,5 +105,9 @@ class OwnerLoginScreenViewModel @Inject constructor(
         }
 
         return !hasError
+    }
+
+    private suspend fun sendError(message: String?) {
+        _uiEvent.send(UiEvent.ShowSnackbar(message ?: "Ocorreu um erro inesperado."))
     }
 }

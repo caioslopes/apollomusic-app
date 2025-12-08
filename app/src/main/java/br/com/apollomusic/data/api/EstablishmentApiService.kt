@@ -12,6 +12,7 @@ import br.com.apollomusic.domain.establishment.dto.playlist.PlaylistResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -32,7 +33,7 @@ interface EstablishmentApiService {
     suspend fun getPlaylist(): PlaylistResponse
 
     @POST("establishment/playlist")
-    suspend fun createPlaylist(): Response<Unit>
+    suspend fun createPlaylist()
 
     @GET("establishment/playlist/search-artists")
     suspend fun searchForArtists(@Query("query") query: String): List<Artist>
@@ -44,14 +45,16 @@ interface EstablishmentApiService {
     suspend fun getEstablishmentAvailableArtists(@Path("id") id: String): EstablishmentAvailableArtists
 
     @PUT("establishment/playlist/artists/initial")
-    suspend fun setInitialArtists(@Body manipulateArtistRequest: InitialArtistsRequest): Response<Unit>
+    suspend fun setInitialArtists(@Body manipulateArtistRequest: InitialArtistsRequest)
 
     @POST("establishment/devices")
-    suspend fun setDevice(@Body setDeviceRequest: DeviceRequest): Response<Unit>
+    suspend fun setDevice(@Body setDeviceRequest: DeviceRequest)
 
+    @Headers("Accept: */*")
     @POST("establishment/turn-on")
-    suspend fun turnOn(): Response<Unit>
+    suspend fun turnOn()
 
+    @Headers("Accept: */*")
     @POST("establishment/turn-off")
-    suspend fun turnOff(): Response<Unit>
+    suspend fun turnOff()
 }

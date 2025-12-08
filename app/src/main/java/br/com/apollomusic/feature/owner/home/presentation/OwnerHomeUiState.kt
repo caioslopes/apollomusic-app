@@ -12,5 +12,10 @@ data class OwnerHomeUiState(
     val owner: OwnerResponse? = null,
     val establishment: EstablishmentResponse? = null,
     val devices: List<Device>? = null,
-    val playlist: PlaylistResponse? = null
+    val playlist: PlaylistResponse? = null,
+    
+    val isLoadingOwner: Boolean = true,
+    val isLoadingEstablishment: Boolean = true,
+    val isLoadingDevices: Boolean = true,
+    val isLoadingPlaylist: Boolean = true
 )

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.apollomusic.R
+import br.com.apollomusic.ui.components.Skeleton
 
 @Composable
 fun PlaylistControl(
@@ -91,5 +93,36 @@ fun PlaylistControl(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun PlaylistControlSkeleton(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFFF1F1F1))
+            .padding(16.dp)
+    ) {
+        Skeleton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp),
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Skeleton(
+            modifier = Modifier.width(150.dp).height(24.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Skeleton(
+            modifier = Modifier.fillMaxWidth(0.8f).height(16.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }

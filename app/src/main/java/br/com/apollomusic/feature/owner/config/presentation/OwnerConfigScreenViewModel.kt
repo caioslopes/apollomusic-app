@@ -3,16 +3,20 @@ package br.com.apollomusic.feature.owner.config.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import br.com.apollomusic.domain.establishment.dto.artist.InitialArtistsRequest
 import br.com.apollomusic.domain.establishment.dto.artist.Artist
+import br.com.apollomusic.domain.establishment.dto.artist.InitialArtistsRequest
 import br.com.apollomusic.domain.establishment.repository.EstablishmentRepository
 import br.com.apollomusic.domain.owner.repository.OwnerRepository
 import br.com.apollomusic.navigation.Graph
 import br.com.apollomusic.navigation.Screen
+import br.com.apollomusic.network.NetworkResult
 import br.com.apollomusic.network.TokenManager
+import br.com.apollomusic.ui.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,10 +26,13 @@ class OwnerConfigScreenViewModel @Inject constructor(
     private val establishmentRepository: EstablishmentRepository,
     private val ownerRepository: OwnerRepository,
     private val tokenManager: TokenManager,
-    ) : ViewModel() {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OwnerConfigUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val _uiEvent = Channel<UiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     fun onArtistSearchQueryChange(query: String) {
         _uiState.update { it.copy(artistSearchQuery = query) }
@@ -49,47 +56,55 @@ class OwnerConfigScreenViewModel @Inject constructor(
     fun onSearchArtists() {
         viewModelScope.launch {
             _uiState.update { it.copy(isSearchingArtists = true, artistSearchResult = emptyList()) }
-            try {
-                val query = _uiState.value.artistSearchQuery
-                val response: List<Artist> = establishmentRepository.searchForArtists(query)
+            val query = _uiState.value.artistSearchQuery
 
-                _uiState.update {
-                    it.copy(
-                        isSearchingArtists = false,
-                        artistSearchResult = response
-                    )
+            when (val result = establishmentRepository.searchForArtists(query)) {
+                is NetworkResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isSearchingArtists = false,
+                            artistSearchResult = result.data ?: emptyList()
+                        )
+                    }
                 }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(isSearchingArtists = false, errorMessage = e.message) }
-                println("Erro ao buscar artistas: ${e.message}")
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(isSearchingArtists = false) }
+                    sendError(result.message)
+                }
+                is NetworkResult.Loading -> {}
             }
         }
     }
 
     fun setInitialArtists(artistIds: Set<String>, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            try {
-                _uiState.update { it.copy(isLoading = true, errorMessage = null, successMessage = null) }
-                establishmentRepository.setInitialArtists(InitialArtistsRequest(artistIds))
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        successMessage = "Artistas iniciais definidos com sucesso!"
-                    )
+            _uiState.update { it.copy(isLoading = true) }
+
+            val request = InitialArtistsRequest(artistIds)
+            when (val result = establishmentRepository.setInitialArtists(request)) {
+                is NetworkResult.Success -> {
+                    _uiState.update { it.copy(isLoading = false) }
+                    sendSuccess("Artistas iniciais definidos com sucesso!")
+                    onSuccess()
                 }
-                onSuccess()
-            } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, errorMessage = "Falha ao definir artistas") }
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(isLoading = false) }
+                    sendError(result.message)
+                }
+                is NetworkResult.Loading -> {}
             }
         }
     }
 
     fun getOwner() = viewModelScope.launch {
-        try {
-            val response = ownerRepository.getOwner()
-            _uiState.update { it.copy(owner = response) }
-        } catch (e: Exception) {
-            _uiState.update { it.copy(errorMessage = "Erro ao buscar usuário.") }
+        when (val result = ownerRepository.getOwner()) {
+            is NetworkResult.Success -> {
+                _uiState.update { it.copy(owner = result.data) }
+            }
+            is NetworkResult.Error -> {
+                sendError(result.message)
+            }
+            is NetworkResult.Loading -> {}
         }
     }
 
@@ -102,6 +117,11 @@ class OwnerConfigScreenViewModel @Inject constructor(
         }
     }
 
-    fun clearError() = _uiState.update { it.copy(errorMessage = null) }
-    fun clearSuccess() = _uiState.update { it.copy(successMessage = null) }
+    private suspend fun sendError(message: String?) {
+        _uiEvent.send(UiEvent.ShowSnackbar(message ?: "Ocorreu um erro inesperado."))
+    }
+
+    private suspend fun sendSuccess(message: String) {
+        _uiEvent.send(UiEvent.ShowSnackbar(message))
+    }
 }

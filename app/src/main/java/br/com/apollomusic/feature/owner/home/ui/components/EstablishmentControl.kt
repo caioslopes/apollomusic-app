@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.apollomusic.ui.components.Skeleton
 import br.com.apollomusic.ui.theme.Grey80
 import br.com.apollomusic.ui.theme.Grey90
 import br.com.apollomusic.ui.theme.Rose
@@ -98,3 +99,45 @@ fun EstablishmentControl(
     }
 }
 
+@Composable
+fun EstablishmentControlSkeleton(
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Grey90)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Skeleton(
+                modifier = Modifier.size(60.dp),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Skeleton(
+                    modifier = Modifier.width(120.dp).height(20.dp),
+                    shape = RoundedCornerShape(4.dp)
+                )
+
+                Skeleton(
+                    modifier = Modifier.width(80.dp).height(24.dp),
+                    shape = RoundedCornerShape(20.dp)
+                )
+            }
+        }
+
+        Skeleton(
+            modifier = Modifier.size(32.dp),
+            shape = RoundedCornerShape(16.dp)
+        )
+    }
+}

@@ -39,6 +39,7 @@ fun OwnerLoginForm(
     ApolloButton(
         text = "Acessar",
         onClick = onLoginClick,
+        isLoading = state.isLoading,
         icon = Icons.AutoMirrored.Filled.ArrowForward,
         iconPosition = "right"
     )
