@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -82,6 +83,16 @@ dependencies {
 
     // Splash
     implementation(libs.androidx.core.splashscreen)
+
+    // Import the Firebase BoM
+    implementation(platform(libs.firebase.bom))
+
+    // Firebase SDK for Google Analytics
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.messaging)
+
+    // Location
+    implementation(libs.play.services.location)
 
     // Testes
     testImplementation(libs.junit)
