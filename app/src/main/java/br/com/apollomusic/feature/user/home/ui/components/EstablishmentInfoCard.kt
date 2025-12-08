@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import br.com.apollomusic.domain.establishment.dto.EstablishmentForUsersResponse
-import br.com.apollomusic.ui.theme.Grey90
+import br.com.apollomusic.ui.theme.Rose
 
 @Composable
 fun EstablishmentInfoCard(info: EstablishmentForUsersResponse, modifier: Modifier = Modifier) {
@@ -20,7 +20,7 @@ fun EstablishmentInfoCard(info: EstablishmentForUsersResponse, modifier: Modifie
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Grey90)
+            .background(Rose)
             .padding(16.dp)
     ) {
         Text(
@@ -33,7 +33,7 @@ fun EstablishmentInfoCard(info: EstablishmentForUsersResponse, modifier: Modifie
         Text(
             text = "${info.totalUsers} pessoas ativas agora",
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.7f)
+            color = Color.White.copy(alpha = 0.9f)
         )
     }
 }
