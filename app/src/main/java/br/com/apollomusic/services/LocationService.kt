@@ -9,8 +9,20 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.*
 import br.com.apollomusic.R
-
-class LocationTrackingService : Service() {
+import br.com.apollomusic.data.api.LocationApiService
+import br.com.apollomusic.data.api.OwnerApiService
+import br.com.apollomusic.domain.location.dto.VerifyLocationRequest
+import br.com.apollomusic.utils.TokenManager
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+@AndroidEntryPoint
+class LocationTrackingService: Service()  {
+    @Inject lateinit var locationApiService: LocationApiService
+    @Inject lateinit var tokenManager: TokenManager
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
@@ -35,9 +47,14 @@ class LocationTrackingService : Service() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.lastLocation?.let { location ->
-                    sendLocationToBackend(location)
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        sendLocationToBackend(location)
+                    }
+
                 }
             }
+
         }
     }
 
@@ -77,8 +94,51 @@ class LocationTrackingService : Service() {
         }
     }
 
-    private fun sendLocationToBackend(location: Location) {
+    private suspend fun sendLocationToBackend(location: Location) {
+
         Log.i("LOC_TRACKER", "Enviando localização: Lat=${location.latitude}, Lon=${location.longitude}")
+
+        val fcmToken = tokenManager.fcmToken.first()
+
+        if (fcmToken.isNotEmpty()) {
+            val request = VerifyLocationRequest(
+                deviceToken = fcmToken,
+                latitude = location.latitude.toString(),
+                longitude = location.longitude.toString()
+            )
+
+            CoroutineScope(Dispatchers.IO).launch {
+
+                try {
+                    val response = locationApiService.verifyLocationEstablishment(request)
+
+                    when {
+                        response.isSuccessful -> {
+                            Log.i("LOC_TRACKER", "Localização enviada com sucesso (HTTP ${response.code()})")
+                        }
+
+                        response.code() == 400 -> {
+                            Log.e("LOC_TRACKER", "Erro 400: Requisição inválida -> ${response.errorBody()?.string()}")
+                        }
+
+                        response.code() == 500 -> {
+                            Log.e("LOC_TRACKER", "Erro 500: Erro interno do servidor")
+                        }
+
+                        else -> {
+                            Log.e("LOC_TRACKER", "Erro HTTP ${response.code()}: ${response.errorBody()?.string()}")
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("LOC_TRACKER", "Falha de conexão: ${e.message}", e)
+                }
+
+            }
+        } else {
+            Log.e("API_CALL", "Token FCM ausente. Não é possível enviar localização.")
+        }
+
     }
 
     private fun createNotification(): Notification {

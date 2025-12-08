@@ -16,6 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.apollomusic.feature.splash.presentation.SplashViewModel
@@ -23,13 +24,18 @@ import br.com.apollomusic.navigation.AppNavGraph
 import br.com.apollomusic.navigation.Screen
 import br.com.apollomusic.services.LocationTrackingService
 import br.com.apollomusic.ui.theme.ApolloMusicTheme
+import br.com.apollomusic.utils.TokenManager
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    @Inject
+    lateinit var tokenManager: TokenManager
     private lateinit var navController: NavHostController
     private val pendingNavigation = MutableStateFlow<String?>(null)
 
@@ -65,7 +71,14 @@ class MainActivity : ComponentActivity() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val token = task.result
-                    Log.d("FCM_APOLLO", "Token Obtido Manualmente: $token")
+                    Log.d("FCM_APOLLO", "Token Obtido na MainActivity: $token")
+
+                    lifecycleScope.launch {
+                        tokenManager.saveFCMToken(token)
+                        Log.d("FCM_APOLLO", "Token salvo com sucesso no DataStore.")
+                    }
+                } else {
+                    Log.w("FCM_APOLLO", "Falha ao obter o token FCM", task.exception)
                 }
             }
 

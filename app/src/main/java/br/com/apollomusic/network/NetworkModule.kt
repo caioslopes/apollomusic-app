@@ -1,6 +1,7 @@
 package br.com.apollomusic.network
 
 import br.com.apollomusic.data.api.EstablishmentApiService
+import br.com.apollomusic.data.api.LocationApiService
 import br.com.apollomusic.data.api.OwnerApiService
 import br.com.apollomusic.data.api.UserApiService
 import dagger.Module
@@ -63,4 +64,9 @@ object NetworkModule {
     fun provideUserApiService(retrofit: Retrofit): UserApiService {
         return retrofit.create(UserApiService::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideLocationApiService(retrofit: Retrofit): LocationApiService =
+        retrofit.create(LocationApiService::class.java)
 }

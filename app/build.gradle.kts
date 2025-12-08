@@ -94,6 +94,10 @@ dependencies {
     // Location
     implementation(libs.play.services.location)
 
+    // shared preferences
+    implementation(libs.androidx.datastore.preferences)
+
+
     // Testes
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
