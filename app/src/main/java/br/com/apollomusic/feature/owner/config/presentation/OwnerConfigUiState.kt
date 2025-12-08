@@ -14,5 +14,8 @@ data class OwnerConfigUiState(
     val owner: OwnerResponse? = null,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val successMessage: String? = null
+    val successMessage: String? = null,
+    
+    val isLoadingPlaylist: Boolean = true,
+    val isLoadingOwner: Boolean = true
 )

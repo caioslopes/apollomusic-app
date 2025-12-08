@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -38,12 +39,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import br.com.apollomusic.feature.owner.config.presentation.OwnerConfigScreenViewModel
 import br.com.apollomusic.feature.owner.home.ui.components.PlaylistControl
+import br.com.apollomusic.feature.owner.home.ui.components.PlaylistControlSkeleton
 import br.com.apollomusic.ui.UiEvent
 import br.com.apollomusic.ui.components.ApolloArtistSearch
 import br.com.apollomusic.ui.components.ApolloButton
 import br.com.apollomusic.ui.components.ApolloCommonHeader
 import br.com.apollomusic.ui.components.ApolloUserHeader
 import br.com.apollomusic.ui.components.SelectionMode
+import br.com.apollomusic.ui.components.Skeleton
 import br.com.apollomusic.ui.theme.Grey80
 import br.com.apollomusic.ui.theme.Grey90
 import br.com.apollomusic.ui.theme.Rose
@@ -74,6 +77,7 @@ fun OwnerConfigScreen(
 
     LaunchedEffect(Unit) {
         viewModel.getOwner()
+        viewModel.getPlaylist()
     }
 
     if (state.isArtistDrawerOpen) {
@@ -110,7 +114,8 @@ fun OwnerConfigScreen(
                     Modifier,
                     state.owner?.name ?: "",
                     onClickExit = { viewModel.onLogout(navController) },
-                    state.owner?.hasThirdPartyAccess ?: false
+                    state.owner?.hasThirdPartyAccess ?: false,
+                    isLoading = state.isLoadingOwner
                 )
             }
         },
@@ -121,11 +126,16 @@ fun OwnerConfigScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            PlaylistControl(
-                name = state.playlist?.name ?: "",
-                description = state.playlist?.description ?: "Lorem ipsum dolor sit amet.",
-                onConfigClick = { viewModel.openArtistDrawer() }
-            )
+            
+            if (state.isLoadingPlaylist) {
+                PlaylistControlSkeleton()
+            } else {
+                PlaylistControl(
+                    name = state.playlist?.name ?: "",
+                    description = state.playlist?.description ?: "Lorem ipsum dolor sit amet.",
+                    onConfigClick = { viewModel.openArtistDrawer() }
+                )
+            }
 
             Spacer(Modifier.height(24.dp))
 
@@ -143,7 +153,21 @@ fun OwnerConfigScreen(
                 )
                 Spacer(Modifier.height(12.dp))
 
-                if (state.selectedArtists.isEmpty()) {
+                if (state.isLoadingPlaylist) {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        repeat(5) {
+                            Skeleton(
+                                modifier = Modifier
+                                    .width(100.dp)
+                                    .height(32.dp),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                        }
+                    }
+                } else if (state.selectedArtists.isEmpty()) {
                     Text("Nenhum artista selecionado ainda.")
                 } else {
                     FlowRow(
@@ -167,6 +191,7 @@ fun OwnerConfigScreen(
                             onSuccess = { navController.popBackStack() }
                         )
                     },
+                    isLoading = state.isLoading
                 )
             }
         }

@@ -99,9 +99,33 @@ class OwnerConfigScreenViewModel @Inject constructor(
     fun getOwner() = viewModelScope.launch {
         when (val result = ownerRepository.getOwner()) {
             is NetworkResult.Success -> {
-                _uiState.update { it.copy(owner = result.data) }
+                _uiState.update { it.copy(owner = result.data, isLoadingOwner = false) }
             }
             is NetworkResult.Error -> {
+                _uiState.update { it.copy(isLoadingOwner = false) }
+                sendError(result.message)
+            }
+            is NetworkResult.Loading -> {}
+        }
+    }
+
+    fun getPlaylist() = viewModelScope.launch {
+        when (val result = establishmentRepository.getPlaylist()) {
+            is NetworkResult.Success -> {
+                val initialArtists = result.data?.initialArtists?.map { (key, _) ->
+                    Artist(id = key, name = key, images = emptyList())
+                } ?: emptyList()
+
+                _uiState.update {
+                    it.copy(
+                        playlist = result.data,
+                        isLoadingPlaylist = false,
+                        selectedArtists = initialArtists
+                    )
+                }
+            }
+            is NetworkResult.Error -> {
+                _uiState.update { it.copy(isLoadingPlaylist = false) }
                 sendError(result.message)
             }
             is NetworkResult.Loading -> {}
