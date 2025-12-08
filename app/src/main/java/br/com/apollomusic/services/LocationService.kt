@@ -59,6 +59,24 @@ class LocationTrackingService : Service() {
         }
     }
 
+    private fun fetchCurrentLocation(onLocationFetched: (String, String) -> Unit) {
+        try {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                if (location != null) {
+                    val lat = location.latitude.toString()
+                    val lon = location.longitude.toString()
+                    onLocationFetched(lat, lon)
+                } else {
+                    Log.w("LOC_TRACKER", "Localização atual retornou nula.")
+                }
+            }.addOnFailureListener { e ->
+                Log.e("LOC_TRACKER", "Falha ao buscar localização atual.", e)
+            }
+        } catch (e: SecurityException) {
+            Log.e("LOC_TRACKER", "Permissão necessária não concedida.", e)
+        }
+    }
+
     private fun sendLocationToBackend(location: Location) {
         Log.i("LOC_TRACKER", "Enviando localização: Lat=${location.latitude}, Lon=${location.longitude}")
     }

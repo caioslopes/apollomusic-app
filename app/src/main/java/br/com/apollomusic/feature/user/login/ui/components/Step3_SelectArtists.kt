@@ -27,11 +27,12 @@ fun Step3_SelectArtists(
             onClick = onOpenDrawer
         )
 
+        Spacer(Modifier.height(16.dp))
+
         ApolloButton(
             text = "Acessar",
             onClick = onLoginClick,
-            //enabled = selectedArtists.isNotEmpty() && !isLoading,
-            //isLoading = isLoading
+            isLoading = isLoading
         )
     }
 }

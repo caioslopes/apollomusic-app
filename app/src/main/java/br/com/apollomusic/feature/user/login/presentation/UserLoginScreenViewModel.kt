@@ -12,6 +12,7 @@ import br.com.apollomusic.navigation.Screen
 import br.com.apollomusic.network.NetworkResult
 import br.com.apollomusic.network.TokenManager
 import br.com.apollomusic.ui.UiEvent
+import br.com.apollomusic.utils.LocationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,8 @@ import javax.inject.Inject
 class UserLoginScreenViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val establishmentRepository: EstablishmentRepository,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val locationHelper: LocationHelper
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UserLoginUiState())
@@ -158,10 +160,15 @@ class UserLoginScreenViewModel @Inject constructor(
     fun onLogin(navController: NavController) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+
+            val (lat, lon) = locationHelper.getCurrentLocation()
+
             val response = userRepository.login(
                 username = _uiState.value.username,
                 establishmentId = _uiState.value.establishmentId.toLong(),
-                genres = _uiState.value.selectedArtists.map { it.id }
+                genres = _uiState.value.selectedArtists.map { it.id },
+                lat = lat,
+                lon = lon
             )
 
             when (response) {
