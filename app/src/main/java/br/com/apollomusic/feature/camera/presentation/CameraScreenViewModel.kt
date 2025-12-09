@@ -1,13 +1,17 @@
 package br.com.apollomusic.feature.camera.presentation
 
+import android.content.Context
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.apollomusic.BuildConfig
 import br.com.apollomusic.ui.UiEvent.*
 import br.com.apollomusic.ui.UiEvent as GlobalUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +21,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.concurrent.Executor
 import javax.inject.Inject
 
@@ -28,6 +33,9 @@ class CameraScreenViewModel @Inject constructor() : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<GlobalUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
+
+    private val _cameraUiEvent = MutableSharedFlow<CameraUiEvent>()
+    val cameraUiEvent = _cameraUiEvent.asSharedFlow()
 
     private var imageCapture: ImageCapture? = null
 
@@ -53,6 +61,8 @@ class CameraScreenViewModel @Inject constructor() : ViewModel() {
             }
 
             is CameraUiEvent.TakePhoto -> TODO()
+
+            is CameraUiEvent.OnImageCaptured -> TODO()
         }
     }
 
@@ -85,25 +95,34 @@ class CameraScreenViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun takePhoto(
-        outputOptions: ImageCapture.OutputFileOptions,
-        executor: Executor
-    ) {
-        val imageCapture = this.imageCapture ?: return
+    private fun takePhoto(context: Context) {
+        val imageCapture = imageCapture ?: return
+
+        val photoFile = File(
+            context.cacheDir,
+            "post_image_${System.currentTimeMillis()}.jpg"
+        )
+        val outputUri = FileProvider.getUriForFile(
+            context,
+            "${BuildConfig.APPLICATION_ID}.provider",
+            photoFile
+        )
+
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
         imageCapture.takePicture(
             outputOptions,
-            executor,
+            ContextCompat.getMainExecutor(context),
             object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     viewModelScope.launch {
-                        _uiEvent.emit(GlobalUiEvent.ShowSnackbar("Foto salva com sucesso: ${outputFileResults.savedUri}"))
+                        _cameraUiEvent.emit(CameraUiEvent.OnImageCaptured(output.savedUri ?: outputUri))
                     }
                 }
 
-                override fun onError(exception: ImageCaptureException) {
+                override fun onError(exc: ImageCaptureException) {
                     viewModelScope.launch {
-                        _uiEvent.emit(GlobalUiEvent.ShowSnackbar("Erro ao salvar a foto: ${exception.message}"))
+                        _uiEvent.emit(GlobalUiEvent.ShowSnackbar("Erro ao salvar a foto: ${exc.message}"))
                     }
                 }
             }

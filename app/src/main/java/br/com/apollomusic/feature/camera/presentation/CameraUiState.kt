@@ -1,5 +1,7 @@
 package br.com.apollomusic.feature.camera.presentation
 
+import android.content.Context
+import android.net.Uri
 import androidx.camera.core.CameraSelector
 import java.io.File
 
@@ -11,7 +13,8 @@ data class CameraUiState(
 )
 
 sealed class CameraUiEvent {
-    data class TakePhoto(val outputDirectory: File) : CameraUiEvent()
+    data class TakePhoto(val context: Context): CameraUiEvent()
     data class OnPermissionResult(val granted: Boolean) : CameraUiEvent()
     object SwitchCamera : CameraUiEvent()
+    data class OnImageCaptured(val uri: Uri) : CameraUiEvent()
 }

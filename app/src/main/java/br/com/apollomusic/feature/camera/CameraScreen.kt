@@ -2,7 +2,6 @@ package br.com.apollomusic.feature.camera
 
 import android.Manifest
 import android.content.Context
-import androidx.camera.core.ImageCapture
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Arrangement
@@ -29,8 +28,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Locale
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.filled.ArrowBack
@@ -79,6 +76,24 @@ fun CameraScreen(
             ProcessCameraProvider.getInstance(context).addListener({
                 val cameraProvider = ProcessCameraProvider.getInstance(context).get()
             }, ContextCompat.getMainExecutor(context))
+        }
+    }
+
+    LaunchedEffect(key1 = viewModel) {
+        viewModel.cameraUiEvent.collect { event ->
+            when (event) {
+                is CameraUiEvent.OnImageCaptured -> {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("captured_image_uri", event.uri)
+
+                    navController.popBackStack()
+                }
+
+                is CameraUiEvent.OnPermissionResult -> TODO()
+                CameraUiEvent.SwitchCamera -> TODO()
+                is CameraUiEvent.TakePhoto -> TODO()
+            }
         }
     }
 
@@ -131,15 +146,7 @@ fun CameraScreen(
 
                     FloatingActionButton(
                         onClick = {
-                            val outputDirectory = getOutputDirectory(context)
-                            val photoFile = File(
-                                outputDirectory,
-                                SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
-                                    .format(System.currentTimeMillis()) + ".jpg"
-                            )
-                            val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-                            val cameraExecutor = ContextCompat.getMainExecutor(context)
-                            viewModel.takePhoto(outputOptions, cameraExecutor)
+                            viewModel.onEvent(CameraUiEvent.TakePhoto(context))
                         }
                     ) {
                         Icon(

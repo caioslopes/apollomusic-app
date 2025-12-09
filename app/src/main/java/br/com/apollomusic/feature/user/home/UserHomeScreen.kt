@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -48,6 +49,17 @@ fun UserHomeScreen(
             viewModel.onImageCaptured(uiState.newPostImageUri)
         } else {
             viewModel.onImageCaptured(null)
+        }
+    }
+
+    val capturedImageUri = navController.currentBackStackEntry
+        ?.savedStateHandle
+        ?.getLiveData<Uri>("captured_image_uri")?.observeAsState()
+
+    LaunchedEffect(capturedImageUri) {
+        capturedImageUri?.value?.let { uri ->
+            viewModel.onImageCaptured(uri)
+            navController.currentBackStackEntry?.savedStateHandle?.remove<Uri>("captured_image_uri")
         }
     }
 
