@@ -39,6 +39,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -52,6 +53,8 @@ dependencies {
 
     // Jetpack DataStore
     implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.accompanist.permissions)
 
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
@@ -97,6 +100,15 @@ dependencies {
     // shared preferences
     implementation(libs.androidx.datastore.preferences)
 
+    // Camera
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.extensions)
+
+    // Icons
+    implementation(libs.androidx.compose.material.icons.extended)
 
     // Testes
     testImplementation(libs.junit)

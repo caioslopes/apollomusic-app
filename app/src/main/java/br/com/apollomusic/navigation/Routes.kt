@@ -21,4 +21,7 @@ sealed class Screen(val route: String) {
     }
 
     data object OwnerConfig : Screen("owner-config")
+
+    data object Camera : Screen("camera")
+
 }

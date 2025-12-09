@@ -1,16 +1,24 @@
 package br.com.apollomusic.domain.establishment.repository
 
+import android.content.Context
+import android.net.Uri
 import br.com.apollomusic.data.api.EstablishmentApiService
 import br.com.apollomusic.domain.establishment.dto.artist.Artist
 import br.com.apollomusic.domain.establishment.dto.artist.EstablishmentAvailableArtists
 import br.com.apollomusic.domain.establishment.dto.EstablishmentForUsersResponse
 import br.com.apollomusic.domain.establishment.dto.EstablishmentResponse
+import br.com.apollomusic.domain.establishment.dto.Post
 import br.com.apollomusic.domain.establishment.dto.artist.InitialArtistsRequest
 import br.com.apollomusic.domain.establishment.dto.device.DeviceRequest
 import br.com.apollomusic.domain.establishment.dto.device.DeviceResponse
 import br.com.apollomusic.domain.establishment.dto.playlist.PlaylistResponse
 import br.com.apollomusic.network.NetworkResult
 import br.com.apollomusic.network.safeApiCall
+import br.com.apollomusic.utils.uriToMultipartBodyPart
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 class EstablishmentRepository @Inject constructor(
@@ -62,5 +70,33 @@ class EstablishmentRepository @Inject constructor(
 
     suspend fun turnOff(): NetworkResult<Unit> {
         return safeApiCall { api.turnOff() }
+    }
+
+    suspend fun getPosts(establishmentId: Long): NetworkResult<List<Post>> {
+        return safeApiCall { api.getPosts(establishmentId) }
+    }
+
+    suspend fun createPost(
+        context: Context,
+        username: String,
+        content: String,
+        establishmentId: Long,
+        imageUris: List<Uri>
+    ): NetworkResult<Post> {
+        return safeApiCall {
+            val usernamePart = username.toRequestBody("text/plain".toMediaTypeOrNull())
+            val contentPart = content.toRequestBody("text/plain".toMediaTypeOrNull())
+            val establishmentIdPart = establishmentId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+
+            val imageParts = imageUris.mapNotNull { uri ->
+                uriToMultipartBodyPart(context, uri, "images")
+            }
+
+            if (imageParts.isEmpty()) {
+                throw IllegalArgumentException("Pelo menos uma imagem é necessária.")
+            }
+
+            api.createPost(usernamePart, contentPart, establishmentIdPart, imageParts)
+        }
     }
 }

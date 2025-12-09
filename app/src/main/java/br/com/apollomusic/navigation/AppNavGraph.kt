@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import br.com.apollomusic.feature.camera.CameraScreen
 import br.com.apollomusic.feature.owner.login.OwnerLoginScreen
 import br.com.apollomusic.feature.splash.SplashScreen
 import br.com.apollomusic.feature.user.login.UserLoginScreen
@@ -34,6 +35,12 @@ fun AppNavGraph(navController: NavHostController) {
         composable(Screen.OwnerLogin.route) {
             OwnerLoginScreen (
                 onGoBack = { navController.navigate(Screen.Welcome.route) },
+                navController = navController
+            )
+        }
+        composable(Screen.Camera.route) {
+            CameraScreen (
+                onGoBack = { navController.popBackStack() },
                 navController = navController
             )
         }

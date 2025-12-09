@@ -1,5 +1,7 @@
 package br.com.apollomusic.feature.user.home.presentation
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
@@ -7,6 +9,7 @@ import br.com.apollomusic.domain.establishment.repository.EstablishmentRepositor
 import br.com.apollomusic.domain.user.User
 import br.com.apollomusic.navigation.Graph
 import br.com.apollomusic.navigation.Screen
+import br.com.apollomusic.network.NetworkResult
 import br.com.apollomusic.network.TokenManager
 import br.com.apollomusic.utils.JwtUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -67,5 +70,75 @@ class UserHomeScreenViewModel @Inject constructor(
             }
         }
     }
+
+    fun getPosts(establishmentId: Long) = viewModelScope.launch {
+        _uiState.update { it.copy(isLoadingFeed = true) }
+
+        val result = establishmentRepository.getPosts(establishmentId)
+
+        when (result) {
+            is NetworkResult.Success -> {
+                _uiState.update { it.copy(posts = result.data ?: emptyList(), isLoadingFeed = false) }
+            }
+            is NetworkResult.Error -> {
+                _uiState.update { it.copy(isLoadingFeed = false, errorMessage = result.message) }
+            }
+
+            is NetworkResult.Loading<*> -> TODO()
+        }
+    }
+
+    fun onContentChange(content: String) {
+        _uiState.update { it.copy(newPostContent = content) }
+    }
+
+    fun onImageCaptured(uri: Uri?) {
+        _uiState.update { it.copy(newPostImageUri = uri) }
+    }
+
+    fun onShowCreatePostSheet(show: Boolean) {
+        if (!show) {
+            _uiState.update { it.copy(showCreatePostSheet = false, newPostContent = "", newPostImageUri = null) }
+        } else {
+            _uiState.update { it.copy(showCreatePostSheet = true) }
+        }
+    }
+
+    fun createPost(context: Context) = viewModelScope.launch {
+        _uiState.update { it.copy(isCreatingPost = true) }
+
+        try {
+            val currentState = _uiState.value
+            val uri = currentState.newPostImageUri ?: throw IllegalStateException("A imagem não pode ser nula.")
+            val username = currentState.user?.username ?: "Usuário Anônimo"
+            val establishmentId = currentState.user?.establishmentId ?: throw IllegalStateException("ID do estabelecimento não encontrado.")
+
+            val result = establishmentRepository.createPost(
+                context = context,
+                username = username,
+                content = currentState.newPostContent,
+                establishmentId = establishmentId,
+                imageUris = listOf(uri)
+            )
+
+            when (result) {
+                is NetworkResult.Success -> {
+                    onShowCreatePostSheet(false)
+                    getPosts(establishmentId)
+                }
+                is NetworkResult.Error -> {
+                    _uiState.update { it.copy(errorMessage = result.message) }
+                }
+                else -> {
+                }
+            }
+
+        } catch (e: Exception) {
+            _uiState.update { it.copy(errorMessage = e.message) }
+        } finally {
+            _uiState.update { it.copy(isCreatingPost = false) }
+        }
+    }
+
 
 }

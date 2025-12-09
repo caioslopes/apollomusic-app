@@ -9,12 +9,17 @@ import br.com.apollomusic.domain.establishment.dto.artist.InitialArtistsRequest
 import br.com.apollomusic.domain.establishment.dto.device.DeviceRequest
 import br.com.apollomusic.domain.establishment.dto.device.DeviceResponse
 import br.com.apollomusic.domain.establishment.dto.playlist.PlaylistResponse
+import br.com.apollomusic.domain.establishment.dto.Post
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -57,4 +62,16 @@ interface EstablishmentApiService {
     @Headers("Accept: */*")
     @POST("establishment/turn-off")
     suspend fun turnOff()
+
+    @GET("establishment/posts")
+    suspend fun getPosts(@Query("establishmentId") establishmentId: Long): List<Post>
+
+    @Multipart
+    @POST("establishment/posts")
+    suspend fun createPost(
+        @Part("username") username: RequestBody,
+        @Part("content") content: RequestBody,
+        @Part("establishmentId") establishmentId: RequestBody,
+        @Part images: List<MultipartBody.Part>
+    ): Post
 }
