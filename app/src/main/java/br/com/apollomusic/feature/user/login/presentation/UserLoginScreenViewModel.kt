@@ -46,7 +46,7 @@ class UserLoginScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-            val establishmentId = _uiState.value.establishmentId
+            val establishmentId = _uiState.value.establishmentId.trim()
 
             when (val result = establishmentRepository.getEstablishmentById(establishmentId)) {
                 is NetworkResult.Success -> {
@@ -106,7 +106,7 @@ class UserLoginScreenViewModel @Inject constructor(
             _uiState.update { it.copy(isSearchingArtists = true, artistSearchResult = emptyList()) }
 
             val establishmentId = try {
-                _uiState.value.establishmentId.toLong()
+                _uiState.value.establishmentId.trim().toLong()
             } catch (e: NumberFormatException) {
                 _uiState.update { it.copy(isSearchingArtists = false) }
                 sendError("ID do estabelecimento inválido")
@@ -164,8 +164,8 @@ class UserLoginScreenViewModel @Inject constructor(
             val (lat, lon) = locationHelper.getCurrentLocation()
 
             val response = userRepository.login(
-                username = _uiState.value.username,
-                establishmentId = _uiState.value.establishmentId.toLong(),
+                username = _uiState.value.username.trim(),
+                establishmentId = _uiState.value.establishmentId.trim().toLong(),
                 genres = _uiState.value.selectedArtists.map { it.id },
                 lat = lat,
                 lon = lon

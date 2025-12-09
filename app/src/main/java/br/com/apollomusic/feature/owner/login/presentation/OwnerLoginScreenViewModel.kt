@@ -63,7 +63,11 @@ class OwnerLoginScreenViewModel @Inject constructor(
 
             val form = _uiState.value.form
 
-            when (val result = ownerRepository.login(form.email, form.password, form.establishmentId)) {
+            when (val result = ownerRepository.login(
+                form.email.trim(),
+                form.password.trim(),
+                form.establishmentId.trim()
+            )) {
                 is NetworkResult.Success -> {
                     result.data?.accessToken?.let { token ->
                         tokenManager.saveToken(token)

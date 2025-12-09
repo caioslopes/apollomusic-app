@@ -118,7 +118,6 @@ class OwnerHomeScreenViewModel @Inject constructor(
         _uiState.update { it.copy(isLoading = true) }
         when (val createResult = establishmentRepository.createPlaylist()) {
             is NetworkResult.Success -> {
-                // Fetch playlist updates isLoadingPlaylist which is fine
                 when (val playlistResult = establishmentRepository.getPlaylist()) {
                     is NetworkResult.Success -> {
                         _uiState.update { it.copy(isLoading = false, playlist = playlistResult.data, isLoadingPlaylist = false) }

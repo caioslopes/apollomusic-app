@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -13,6 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import br.com.apollomusic.domain.establishment.dto.artist.Artist
 import coil.compose.AsyncImage
@@ -47,6 +52,9 @@ fun ApolloArtistSearch(
     onArtistSelect: (Artist) -> Unit,
     isSearching: Boolean
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
     Column(modifier = Modifier.padding(16.dp)) {
         header()
         Spacer(Modifier.height(16.dp))
@@ -56,11 +64,23 @@ fun ApolloArtistSearch(
             onValueChange = onQueryChange,
             label = "Nome do artista",
             trailingIcon = {
-                IconButton(onClick = onSearchClick, enabled = !isSearching) {
+                IconButton(onClick = {
+                    onSearchClick()
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                }, enabled = !isSearching) {
                     Icon(Icons.Default.Search, contentDescription = "Buscar")
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    onSearchClick()
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                }
+            )
         )
         Spacer(Modifier.height(16.dp))
 

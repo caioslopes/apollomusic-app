@@ -22,14 +22,14 @@ fun EstablishmentInfoSkeleton(modifier: Modifier = Modifier) {
         Skeleton(
             modifier = Modifier
                 .fillMaxWidth(0.7f)
-                .height(28.dp), // Title size
+                .height(28.dp),
             shape = RoundedCornerShape(8.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
         Skeleton(
             modifier = Modifier
                 .fillMaxWidth(0.4f)
-                .height(20.dp), // Subtitle size
+                .height(20.dp),
             shape = RoundedCornerShape(8.dp)
         )
     }

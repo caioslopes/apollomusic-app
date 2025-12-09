@@ -176,7 +176,6 @@ fun OwnerHomeScreen(
                 }
             }
 
-            // Loading Overlay (Opcional - mantido para ações)
             if (uiState.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(androidx.compose.ui.Alignment.Center))
             }

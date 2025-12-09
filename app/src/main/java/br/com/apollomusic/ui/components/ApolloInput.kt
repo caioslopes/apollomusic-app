@@ -2,6 +2,8 @@ package br.com.apollomusic.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,7 +17,9 @@ fun ApolloInputText(
     modifier: Modifier = Modifier,
     isError: Boolean = false,
     supportingText: String? = null,
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ){
     OutlinedTextField(
         value = value,
@@ -32,5 +36,7 @@ fun ApolloInputText(
             }
         },
         trailingIcon = trailingIcon,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions
     )
 }

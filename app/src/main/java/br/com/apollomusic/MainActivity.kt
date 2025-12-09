@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-        checkAndRequestLocationPermissions()
+        checkAndRequestPermissions()
 
         handleSpotifyCallback(intent)
     }
@@ -110,43 +110,61 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private val locationPermissionLauncher = registerForActivityResult(
+    private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
-
-        val backgroundLocationGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            permissions[Manifest.permission.ACCESS_BACKGROUND_LOCATION] == true
-        } else {
-            true
+        permissions.entries.forEach {
+            Log.d("Permissions", "${it.key} = ${it.value}")
         }
 
-        if (fineLocationGranted && backgroundLocationGranted) {
-            startLocationService()
-        } else {
-        }
-    }
-
-    fun checkAndRequestLocationPermissions() {
-        val fineLocation = ContextCompat.checkSelfPermission(
+        val fineLocationGranted = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
-        if (fineLocation) {
+        if (fineLocationGranted) {
             startLocationService()
-            return
+        } else {
+            Log.w("Permissions", "Permissão de localização fina não concedida.")
         }
+    }
 
-        val permissionsToRequest = mutableListOf(
+    private fun checkAndRequestPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
+
+        val hasFineLocation = ContextCompat.checkSelfPermission(
+            this,
             Manifest.permission.ACCESS_FINE_LOCATION
-        )
+        ) == PackageManager.PERMISSION_GRANTED
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            permissionsToRequest.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        val hasCoarseLocation = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!hasFineLocation || !hasCoarseLocation) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+            permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
         }
 
-        locationPermissionLauncher.launch(permissionsToRequest.toTypedArray())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasNotificationPermission = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!hasNotificationPermission) {
+                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        if (permissionsToRequest.isNotEmpty()) {
+            Log.d("Permissions", "Solicitando permissões: $permissionsToRequest")
+            permissionLauncher.launch(permissionsToRequest.toTypedArray())
+        } else {
+            Log.d("Permissions", "Todas as permissões necessárias já foram concedidas.")
+            startLocationService()
+        }
     }
 
     fun startLocationService() {
