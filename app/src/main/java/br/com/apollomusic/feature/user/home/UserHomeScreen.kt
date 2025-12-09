@@ -1,5 +1,7 @@
 package br.com.apollomusic.feature.user.home
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -42,13 +45,36 @@ fun UserHomeScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
 
+    var tempImageUri by remember { mutableStateOf<Uri?>(null) }
+
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
-        if (success) {
-            viewModel.onImageCaptured(uiState.newPostImageUri)
-        } else {
-            viewModel.onImageCaptured(null)
+        if (success && tempImageUri != null) {
+            viewModel.onImageCaptured(tempImageUri)
+        }
+    }
+
+    val launchCamera = {
+        val file = File(context.cacheDir, "post_image_${System.currentTimeMillis()}.jpg")
+        try {
+            file.createNewFile()
+            val uri = FileProvider.getUriForFile(
+                Objects.requireNonNull(context),
+                BuildConfig.APPLICATION_ID + ".provider", file
+            )
+            tempImageUri = uri
+            cameraLauncher.launch(uri)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            launchCamera()
         }
     }
 
@@ -131,13 +157,12 @@ fun UserHomeScreen(
                     onContentChange = viewModel::onContentChange,
                     imageUri = uiState.newPostImageUri,
                     onTakePhotoClick = {
-                        val file = File(context.cacheDir, "post_image_${System.currentTimeMillis()}.jpg")
-                        val uri = FileProvider.getUriForFile(
-                            Objects.requireNonNull(context),
-                            BuildConfig.APPLICATION_ID + ".provider", file
-                        )
-                        viewModel.onImageCaptured(uri)
-                        cameraLauncher.launch(uri)
+                        val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                        if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                            launchCamera()
+                        } else {
+                            permissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
                     },
                     onSubmitClick = { viewModel.createPost(context) },
                     isCreatingPost = uiState.isCreatingPost

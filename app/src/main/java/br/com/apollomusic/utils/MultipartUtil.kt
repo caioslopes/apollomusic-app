@@ -49,7 +49,9 @@ fun uriToMultipartBodyPart(context: Context, uri: Uri, partName: String): Multip
         val inputStream: InputStream = context.contentResolver.openInputStream(uri) ?: return null
 
         // Cria um arquivo temporário no diretório de cache do app
-        val fileName = getFileName(context, uri) ?: "temp_file"
+        val originalFileName = getFileName(context, uri) ?: "temp_file"
+        // Adiciona um prefixo para evitar sobrescrever o arquivo original se ele estiver no mesmo diretório
+        val fileName = "upload_${System.currentTimeMillis()}_$originalFileName"
         val file = File(context.cacheDir, fileName)
 
         // Copia o conteúdo do inputStream para o arquivo temporário
@@ -64,7 +66,7 @@ fun uriToMultipartBodyPart(context: Context, uri: Uri, partName: String): Multip
         val requestBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
 
         // Cria a MultipartBody.Part
-        MultipartBody.Part.createFormData(partName, file.name, requestBody)
+        MultipartBody.Part.createFormData(partName, originalFileName, requestBody)
     } catch (e: Exception) {
         e.printStackTrace()
         null

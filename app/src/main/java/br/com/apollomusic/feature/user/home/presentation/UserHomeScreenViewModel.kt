@@ -53,6 +53,8 @@ class UserHomeScreenViewModel @Inject constructor(
                         establishmentInfo = establishmentData.data
                     )
                 }
+                
+                getPosts(decodedJwt.establishmentId.toLong())
 
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
